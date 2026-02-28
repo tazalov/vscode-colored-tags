@@ -1,0 +1,7 @@
+<note>
+    <to>Me</to>
+    <from>You</from>
+    <heading>Dev example doc</heading>
+    <!-- XML comment -->
+    <body>Some content</body>
+</note>
