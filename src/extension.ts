@@ -1,30 +1,102 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log(
-    'Congratulations, your extension "vscode-colored-tags" is active!',
-  )
+import { DEBOUNCE_DELAY, MAX_FILE_SIZE, SUPPORTED_LANGS } from './consts'
+import { debounce, findTagNamesWithLevels, getColorForLevel } from './utils'
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
-  const disposable = vscode.commands.registerCommand(
-    'vscode-colored-tags.helloWorld',
-    () => {
-      // The code you place here will be executed every time your command is executed
-      // Display a message box to the user
-      vscode.window.showInformationMessage('Hello World from colored-tags!')
-    },
-  )
+let decorations: vscode.TextEditorDecorationType[] = []
+let fileSizeWarningShown = false
 
-  context.subscriptions.push(disposable)
+function clearDecorations() {
+  decorations.forEach((d) => d.dispose())
+  decorations = []
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+function updateDecorations() {
+  const editor = vscode.window.activeTextEditor
+  if (!editor) {
+    return
+  }
+
+  const document = editor.document
+  const languageId = document.languageId
+
+  if (!SUPPORTED_LANGS.includes(languageId)) {
+    clearDecorations()
+    return
+  }
+
+  const text = document.getText()
+
+  if (text.length > MAX_FILE_SIZE) {
+    if (!fileSizeWarningShown) {
+      vscode.window.showWarningMessage(
+        'File is too large for colored tags. Coloring disabled.',
+      )
+      fileSizeWarningShown = true
+    }
+
+    clearDecorations()
+    return
+  }
+
+  const tagsByNameLevel = findTagNamesWithLevels(text)
+
+  clearDecorations()
+
+  for (const [level, ranges] of tagsByNameLevel) {
+    if (ranges.length === 0) {
+      continue
+    }
+
+    const color = getColorForLevel(level)
+
+    const decorationType = vscode.window.createTextEditorDecorationType({
+      color: color,
+    })
+
+    editor.setDecorations(decorationType, ranges)
+    decorations.push(decorationType)
+  }
+}
+
+const debouncedUpdateDecorations = debounce(updateDecorations, DEBOUNCE_DELAY)
+
+export function activate(context: vscode.ExtensionContext) {
+  fileSizeWarningShown = false
+
+  context.subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor(() => {
+      fileSizeWarningShown = false
+      updateDecorations()
+    }),
+  )
+
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeTextDocument((event) => {
+      if (
+        vscode.window.activeTextEditor &&
+        event.document === vscode.window.activeTextEditor.document
+      ) {
+        debouncedUpdateDecorations()
+      }
+    }),
+  )
+
+  if (vscode.window.activeTextEditor) {
+    updateDecorations()
+  }
+
+  let refreshCommand = vscode.commands.registerCommand(
+    'vscode-colored-tags.refresh',
+    () => {
+      fileSizeWarningShown = false
+      updateDecorations()
+      vscode.window.showInformationMessage('Tag colors changed!')
+    },
+  )
+  context.subscriptions.push(refreshCommand)
+}
+
+export function deactivate() {
+  clearDecorations()
+}
