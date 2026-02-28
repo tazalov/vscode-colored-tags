@@ -52,6 +52,11 @@ jobs:
             echo "type=patch" >> $GITHUB_OUTPUT
             echo "Selected: patch (default)"
           fi
+
+      - name: Switch to master branch
+        run: |
+          git checkout master
+          git pull origin master
       
       - name: Bump version in master
         id: bump
