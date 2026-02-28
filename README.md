@@ -1,8 +1,6 @@
 # 🎨 Colored Tags
 
-A VS Code extension that colors HTML/XML tag names based on their nesting level for better code readability.
-
-![Demo](https://example.com/demo.gif) <!-- Добавьте позже реальную гифку с демонстрацией -->
+A VS Code extension that colors HTML/JSX/TSX etc. tag names based on their nesting level for better code readability.
 
 ## Features
 
@@ -10,7 +8,7 @@ A VS Code extension that colors HTML/XML tag names based on their nesting level 
 - 🌈 Distinct colors for each nesting level (rotating hue)
 - ⚡ Optimized for performance with debouncing and file size limits
 - 🔄 Automatically updates as you type
-- 🎯 Supports HTML, XML, JSX, and other similar languages
+- 🎯 Supports HTML, XML, JSX, and other similar languages (maybe)
 
 ## Supported Languages
 
@@ -19,11 +17,9 @@ A VS Code extension that colors HTML/XML tag names based on their nesting level 
 - JavaScript (JSX)
 - TypeScript (TSX)
 - Vue
-- Svelte
-- PHP
-- And any other language with HTML/XML-like tags
+- And any other language with HTML/XML-like tags (maybe)
 
-## How It Works
+## How It Works  <!-- TODO replace for image -->
 
 The extension analyzes your code in real-time and assigns a unique color to each nesting level:
 
@@ -49,7 +45,7 @@ The extension analyzes your code in real-time and assigns a unique color to each
 3. Search for "Colored Tags"
 4. Click Install
 
-Or install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=your-publisher.colored-tags) (link will be available after publishing)
+Or install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=your-publisher.colored-tags) <!-- TODO add later -->
 
 ## Usage
 
@@ -91,7 +87,7 @@ You can customize the following settings in your VS Code `settings.json`:
 
 ## Known Issues
 
-- Very large files (>500KB) are skipped by default
+- Very large files (>100KB) are skipped by default
 - Complex template literals in JSX might not be fully supported
 
 ## Contributing
