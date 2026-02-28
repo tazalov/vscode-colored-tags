@@ -19,9 +19,7 @@ export function activate(context: vscode.ExtensionContext1) {
     () => {
       // The code you place here will be executed every time your command is executed
       // Display a message box to the user
-      vscode.window.showInformationMessage(
-        'Hello World from vscode-colored-tags!',
-      )
+      vscode.window.showInformationMessage('Hello World from colored-tags!')
     },
   )
 
