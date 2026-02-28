@@ -27,13 +27,6 @@ The extension analyzes your code in real-time and assigns a unique color to each
 
 ## Installation
 
-1. Open VS Code
-2. Go to Extensions (`Ctrl+Shift+X`)
-3. Search for "Colored Tags"
-4. Click Install
-
-Or install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=your-publisher.colored-tags) <!-- TODO add later -->
-
 ## Usage
 
 The extension activates automatically for supported file types. Tag names will be colored immediately.
