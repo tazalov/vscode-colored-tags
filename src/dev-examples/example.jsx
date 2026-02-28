@@ -17,7 +17,6 @@ function App() {
                                 <li>item.title</li>
                                 <li/>
                             </ul>
-                            <br  />
                         </div>
                         <div>
                             <Typography variant="h2">
@@ -31,3 +30,5 @@ function App() {
         </div>
     );
 }
+
+
