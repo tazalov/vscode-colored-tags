@@ -1,8 +1,8 @@
 {
-  "name": "vscode-colored-tags",
-  "displayName": "vscode-colored-tags",
+  "name": "colored-tags",
+  "displayName": "Colored tags",
   "description": "Highlights HTML/JSX/TSX etc. tags with distinct colors",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "publisher": "tazalov",
   "license": "MIT",
   "homepage": "https://github.com/tazalov/vscode-colored-tags/blob/dev/README.md",

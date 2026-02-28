@@ -1,0 +1,113 @@
+name: Publish to Open VSX
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [ master ]
+
+jobs:
+  publish:
+    # Only PR merge
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      
+      # 4. Get PR labels
+      - name: Get PR labels
+        id: labels
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          REPO="${{ github.repository }}"
+          
+          echo "PR #$PR_NUMBER - ${{ github.event.pull_request.title }}"
+          
+          LABELS_JSON=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/labels")
+          
+          if echo "$LABELS_JSON" | grep -q '"name":"major"'; then
+            echo "type=major" >> $GITHUB_OUTPUT
+            echo "Selected: major" 
+          elif echo "$LABELS_JSON" | grep -q '"name":"minor"'; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+            echo "Selected: minor"
+          else
+            echo "type=patch" >> $GITHUB_OUTPUT
+            echo "Selected: patch (default)"
+          fi
+      
+      - name: Bump version in master
+        id: bump
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          npm version ${{ steps.labels.outputs.type }} -m "Bump version to %s [skip ci]"
+          
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Version bumped to: $NEW_VERSION"
+          
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Publish to Open VSX
+        uses: HaaLeo/publish-vscode-extension@v1
+        with:
+          pat: ${{ secrets.OPEN_VSX_TOKEN }}
+      
+      - name: Sync dev with master
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          git fetch origin dev
+          git checkout dev
+          
+          echo "Current branch: $(git branch --show-current)"
+          echo "Merging master into dev..."
+          
+          git merge origin/master --no-ff -m "Merge master into dev after release v${{ steps.bump.outputs.new-version }} [skip ci]"
+          
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const newVersion = '${{ steps.bump.outputs.new-version }}';
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `## ✅ Success released 🎉
+              
+              ### Result:
+              - New version: **v${newVersion}**
+              - Open VSX publish: ✅ Success
+              
+              ### Sync dev with master:
+              - \`dev\` sync with \`master\`
+              `
+            });
