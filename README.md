@@ -23,7 +23,7 @@ A VS Code extension that colors HTML/JSX/TSX etc. tag names based on their nesti
 
 The extension analyzes your code in real-time and assigns a unique color to each nesting level:
 
-![Demo preview](src/assets/preview.png)
+![Demo preview](assets/preview.png)
 
 ## Installation
 
