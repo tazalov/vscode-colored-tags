@@ -1,71 +1,107 @@
-# vscode-colored-tags README
+# 🎨 Colored Tags
 
-This is the README for your extension "vscode-colored-tags". After writing up a brief description, we recommend including the following sections.
+A VS Code extension that colors HTML/XML tag names based on their nesting level for better code readability.
+
+![Demo](https://example.com/demo.gif) <!-- Добавьте позже реальную гифку с демонстрацией -->
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- 🏷️ Colors tag names (opening, closing, and self-closing tags) based on nesting depth
+- 🌈 Distinct colors for each nesting level (rotating hue)
+- ⚡ Optimized for performance with debouncing and file size limits
+- 🔄 Automatically updates as you type
+- 🎯 Supports HTML, XML, JSX, and other similar languages
 
-For example if there is an image subfolder under your extension project workspace:
+## Supported Languages
 
-\!\[feature X\]\(images/feature-x.png\)
+- HTML
+- XML
+- JavaScript (JSX)
+- TypeScript (TSX)
+- Vue
+- Svelte
+- PHP
+- And any other language with HTML/XML-like tags
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## How It Works
+
+The extension analyzes your code in real-time and assigns a unique color to each nesting level:
+
+```html
+<!-- Level 0 (root) -->
+<div>                      <!-- Red-ish -->
+    <!-- Level 1 -->
+    <section>              <!-- Green-ish -->
+        <!-- Level 2 -->
+        <article>          <!-- Blue-ish -->
+            <h1>Title</h1> <!-- Purple-ish -->
+            <p>Text</p>    <!-- Back to Blue-ish -->
+        </article>         <!-- Blue-ish -->
+    </section>             <!-- Green-ish -->
+</div>                     <!-- Red-ish -->
+
+```
+
+## Installation
+
+1. Open VS Code
+2. Go to Extensions (`Ctrl+Shift+X`)
+3. Search for "Colored Tags"
+4. Click Install
+
+Or install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=your-publisher.colored-tags) (link will be available after publishing)
+
+## Usage
+
+The extension activates automatically for supported file types. Tag names will be colored immediately.
+
+### Commands
+
+- `Colored Tags: Refresh` - Manually refresh tag colors (useful if colors get out of sync)
+
+### Performance Features
+
+- **Debounced updates**: Colors update 300ms after you stop typing
+- **File size limit**: Files larger than 500KB are skipped for performance
+- **Smart caching**: Only processes visible/edited parts of the document
+
+## Configuration
+
+You can customize the following settings in your VS Code `settings.json`:
+
+```json
+{
+    "coloredTags.maxFileSize": 100,        // Max file size in KB
+    "coloredTags.updateDelay": 300,         // Debounce delay in ms
+    "coloredTags.saturation": 60,            // Color saturation (0-100)
+    "coloredTags.lightness": 60,             // Color lightness (0-100)
+    "coloredTags.supportedLanguages": [      // Override supported languages
+        "html",
+        "xml",
+        "javascriptreact",
+        "typescriptreact",
+				"vue",
+    ]
+}
+```
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+- VS Code 1.60.0 or higher
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- Very large files (>500KB) are skipped by default
+- Complex template literals in JSX might not be fully supported
 
-## Release Notes
+## Contributing
 
-Users appreciate release notes as you update your extension.
+Found a bug? Have a feature request? [Open an issue](https://github.com/tazalov/vscode-colored-tags/issues)
 
-### 1.0.0
+## License
 
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+MIT
 
 ---
 
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+**Enjoy!** 🎉
