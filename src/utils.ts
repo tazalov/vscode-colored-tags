@@ -1,5 +1,5 @@
-import * as vscode from "vscode";
-import { MAX_FILE_SIZE, TAG_NAME_REGEX } from "./consts";
+import * as vscode from 'vscode'
+import { MAX_FILE_SIZE, TAG_NAME_REGEX } from './consts'
 
 /**
  * Debounce function
@@ -11,17 +11,17 @@ export function debounce<T extends (...args: any[]) => void>(
   func: T,
   delay: number,
 ): T {
-  let timeoutId: NodeJS.Timeout | undefined;
+  let timeoutId: NodeJS.Timeout | undefined
 
   return function (this: any, ...args: Parameters<T>) {
     if (timeoutId) {
-      clearTimeout(timeoutId);
+      clearTimeout(timeoutId)
     }
     timeoutId = setTimeout(() => {
-      func.apply(this, args);
-      timeoutId = undefined;
-    }, delay);
-  } as T;
+      func.apply(this, args)
+      timeoutId = undefined
+    }, delay)
+  } as T
 }
 
 /**
@@ -30,11 +30,11 @@ export function debounce<T extends (...args: any[]) => void>(
  * @returns hsl color
  */
 export function getColorForLevel(level: number): string {
-  const hue = (level * 60) % 360;
-  const saturation = 60;
-  const lightness = 60;
+  const hue = (level * 60) % 360
+  const saturation = 60
+  const lightness = 60
 
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`
 }
 
 /**
@@ -52,14 +52,14 @@ function addTagNameRangeToLevel(
   end: number,
 ): void {
   if (!tagsByNameLevel.has(level)) {
-    tagsByNameLevel.set(level, []);
+    tagsByNameLevel.set(level, [])
   }
 
-  const editor = vscode.window.activeTextEditor;
+  const editor = vscode.window.activeTextEditor
   if (editor) {
-    const startPos = editor.document.positionAt(start);
-    const endPos = editor.document.positionAt(end);
-    tagsByNameLevel.get(level)?.push(new vscode.Range(startPos, endPos));
+    const startPos = editor.document.positionAt(start)
+    const endPos = editor.document.positionAt(end)
+    tagsByNameLevel.get(level)?.push(new vscode.Range(startPos, endPos))
   }
 }
 
@@ -71,57 +71,57 @@ function addTagNameRangeToLevel(
 export function findTagNamesWithLevels(
   text: string,
 ): Map<number, vscode.Range[]> {
-  const tagsByNameLevel = new Map<number, vscode.Range[]>();
-  const stack: { name: string; level: number }[] = [];
+  const tagsByNameLevel = new Map<number, vscode.Range[]>()
+  const stack: { name: string; level: number }[] = []
 
-  let match;
+  let match
 
   while ((match = TAG_NAME_REGEX.exec(text)) !== null) {
-    const slash = match[1]; // "/" for closing tags or empty for opening tags
-    const tagName = match[2];
-    const closingBracket = match[3]; // ">" or "/>"
+    const slash = match[1] // "/" for closing tags or empty for opening tags
+    const tagName = match[2]
+    const closingBracket = match[3] // ">" or "/>"
 
-    const isClosing = slash === "/";
-    const isSelfClosing = closingBracket.trim() === "/>";
+    const isClosing = slash === '/'
+    const isSelfClosing = closingBracket.trim() === '/>'
 
     // Tag position (after < or </)
-    const nameStart = match.index + (isClosing ? 2 : 1); // <div -> position d, </div -> position after </
-    const nameEnd = nameStart + tagName.length;
+    const nameStart = match.index + (isClosing ? 2 : 1) // <div -> position d, </div -> position after </
+    const nameEnd = nameStart + tagName.length
 
-    const editor = vscode.window.activeTextEditor;
+    const editor = vscode.window.activeTextEditor
     if (!editor) {
-      continue;
+      continue
     }
 
     if (isSelfClosing) {
       // Self-closing tag - doesn't affect nesting level
-      const level = stack.length;
-      addTagNameRangeToLevel(tagsByNameLevel, level, nameStart, nameEnd);
+      const level = stack.length
+      addTagNameRangeToLevel(tagsByNameLevel, level, nameStart, nameEnd)
       // Don't push to stack - self-closing tags don't create new level
-      continue;
+      continue
     }
 
     if (!isClosing) {
       // Opening tag
-      const level = stack.length;
-      addTagNameRangeToLevel(tagsByNameLevel, level, nameStart, nameEnd);
+      const level = stack.length
+      addTagNameRangeToLevel(tagsByNameLevel, level, nameStart, nameEnd)
 
-      stack.push({ name: tagName, level });
-      continue;
+      stack.push({ name: tagName, level })
+      continue
     }
 
     // Closing tag
     if (stack.length > 0) {
-      const lastTag = stack[stack.length - 1];
+      const lastTag = stack[stack.length - 1]
       if (lastTag.name === tagName) {
-        stack.pop();
+        stack.pop()
         // Add range of closing tag on same level
         addTagNameRangeToLevel(
           tagsByNameLevel,
           lastTag.level,
           nameStart,
           nameEnd,
-        );
+        )
       } else {
         // Add range of closing tag on current stack level
         addTagNameRangeToLevel(
@@ -129,13 +129,13 @@ export function findTagNamesWithLevels(
           stack.length - 1,
           nameStart,
           nameEnd,
-        );
+        )
       }
     } else {
       // Closing tag without pair - level 0
-      addTagNameRangeToLevel(tagsByNameLevel, 0, nameStart, nameEnd);
+      addTagNameRangeToLevel(tagsByNameLevel, 0, nameStart, nameEnd)
     }
   }
 
-  return tagsByNameLevel;
+  return tagsByNameLevel
 }
