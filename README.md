@@ -19,24 +19,11 @@ A VS Code extension that colors HTML/JSX/TSX etc. tag names based on their nesti
 - Vue
 - And any other language with HTML/XML-like tags (maybe)
 
-## How It Works  <!-- TODO replace for image -->
+## How It Works
 
 The extension analyzes your code in real-time and assigns a unique color to each nesting level:
 
-```html
-<!-- Level 0 (root) -->
-<div>                      <!-- Red-ish -->
-    <!-- Level 1 -->
-    <section>              <!-- Green-ish -->
-        <!-- Level 2 -->
-        <article>          <!-- Blue-ish -->
-            <h1>Title</h1> <!-- Purple-ish -->
-            <p>Text</p>    <!-- Back to Blue-ish -->
-        </article>         <!-- Blue-ish -->
-    </section>             <!-- Green-ish -->
-</div>                     <!-- Red-ish -->
-
-```
+![Demo preview](src/assets/preview.png)
 
 ## Installation
 
