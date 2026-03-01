@@ -1,3 +1,12 @@
+## [1.1.0] - 2026-03-01
+
+### Release 1.1.0
+
+* No new functionality has been added
+* Correction of extension versioning
+
+**Full Changes:** [#8](https://github.com/tazalov/vscode-colored-tags/pull/8)
+
 ## [1.0.4] - 2026-03-01
 
 ### Release 1.1.0
