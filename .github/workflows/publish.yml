@@ -37,15 +37,14 @@ jobs:
           PR_BODY="${{ github.event.pull_request.body }}"
           PR_NUMBER="${{ github.event.pull_request.number }}"
           
-          PR_NUMBER="${{ github.event.pull_request.number }}"
           REPO="${{ github.repository }}"
           
           LABELS_JSON=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/labels")
           
-          if echo "$LABELS_JSON" | grep -q '"name":"major"'; then
+          if echo "$LABELS_JSON" | jq -e '.[] | select(.name=="major")' > /dev/null 2>&1; then
             VERSION_TYPE="major"
-          elif echo "$LABELS_JSON" | grep -q '"name":"minor"'; then
+          elif echo "$LABELS_JSON" | jq -e '.[] | select(.name=="minor")' > /dev/null 2>&1; then
             VERSION_TYPE="minor"
           else
             VERSION_TYPE="patch"
