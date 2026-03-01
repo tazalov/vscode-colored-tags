@@ -17,3 +17,21 @@ export function getDebounceDelay(): number {
   const config = vscode.workspace.getConfiguration('coloredTags')
   return config.get<number>('debounceDelay', 300)
 }
+
+/**
+ * Get saturation to color from user config
+ * @returns saturation (0-100)
+ */
+export function getSaturation(): number {
+  const config = vscode.workspace.getConfiguration('coloredTags')
+  return config.get<number>('saturation', 60)
+}
+
+/**
+ * Get lightness to color from user config
+ * @returns lightness (0-100)
+ */
+export function getLightness(): number {
+  const config = vscode.workspace.getConfiguration('coloredTags')
+  return config.get<number>('lightness', 60)
+}

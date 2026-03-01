@@ -57,6 +57,8 @@ You can customize the following settings in your VS Code `settings.json`:
 {
     "coloredTags.maxFileSize": 100000,        // Max file size (bytes)
     "coloredTags.updateDelay": 300,         // Debounce delay (ms)
+    "coloredTags.saturation": 60,            // Color saturation (0-100)
+    "coloredTags.lightness": 60,             // Color lightness (0-100)
 }
 ```
 

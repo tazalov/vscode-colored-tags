@@ -50,6 +50,20 @@
           "default": 300,
           "minimum": 100,
           "description": "Delay before updating the tag color (ms)"
+        },
+        "coloredTags.saturation": {
+          "type": "number",
+          "default": 60,
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Color saturation (0-100)"
+        },
+        "coloredTags.lightness": {
+          "type": "number",
+          "default": 60,
+          "minimum": 0,
+          "maximum": 100, 
+          "description": "Color lightness (0-100)"
         }
       }
     }
