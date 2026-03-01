@@ -56,6 +56,8 @@ jobs:
           echo "$PR_BODY" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
           echo "version-type=$VERSION_TYPE" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Switch to master branch
         run: |
@@ -105,8 +107,7 @@ jobs:
           
           git add CHANGELOG.md package.json package-lock.json
           git commit -m "chore(release): v$NEW_VERSION [skip ci]"
-          git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
-          git push --follow-tags
+          git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -132,22 +133,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ steps.bump.outputs.new-version }}
-          name: Release v${{ steps.bump.outputs.new-version }} - ${{ steps.pr.outputs.title }}
-          body: |
-            ## ${{ steps.pr.outputs.title }}
-            
-            ${{ steps.pr.outputs.body }}
-            
-            **PR:** [#${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }})
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
       - name: Comment on PR
         uses: actions/github-script@v7
         with:
@@ -167,7 +152,6 @@ jobs:
               ${{ steps.pr.outputs.body }}
               
               ### 🔗 Links:
-              - [GitHub Release v${newVersion}](https://github.com/${{ github.repository }}/releases/tag/v${newVersion})
               - [Open VSX](https://open-vsx.org/extension/${{ github.repository_owner }}/${{ github.event.repository.name }}/v${newVersion})
               
               ### 🔄 Sync:
