@@ -24,34 +24,29 @@ jobs:
           echo "Testing PR #$PR_NUMBER in $REPO"
           echo "=================================="
           
-          # Делаем запрос к API
           echo "Making API request..."
           RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/labels")
           
-          # Выводим полный ответ
           echo "=================================="
           echo "API RESPONSE:"
           echo "=================================="
           echo "$RESPONSE"
           
-          # Проверяем наличие minor label
           echo "=================================="
           echo "CHECKING FOR MINOR LABEL:"
           echo "=================================="
           
-          if echo "$RESPONSE" | grep -q '"name":"minor"'; then
+          if echo "$RESPONSE" | jq -e '.[] | select(.name=="major")' > /dev/null 2>&1; then
             echo "✅ MINOR label FOUND!"
             exit 0
           else
             echo "❌ MINOR label NOT found"
             
-            # Показываем все найденные labels
             echo "Labels found in response:"
             echo "$RESPONSE" | grep -o '"name":"[^"]*"' | cut -d'"' -f4 || echo "No labels found"
             
-            # Проверяем, не вернулась ли ошибка
             if echo "$RESPONSE" | grep -q "message"; then
               echo "=================================="
               echo "ERROR DETECTED:"
