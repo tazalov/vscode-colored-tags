@@ -1,3 +1,12 @@
+## [1.2.0] - 2026-03-01
+
+### Release 1.2.0
+
+* Added a setting for changing the color saturation
+* Added a setting for changing the color lightness
+
+**Full Changes:** [#9](https://github.com/tazalov/vscode-colored-tags/pull/9)
+
 ## [1.1.0] - 2026-03-01
 
 ### Release 1.1.0
