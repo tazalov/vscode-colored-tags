@@ -35,7 +35,24 @@
         "command": "vscode-colored-tags.refresh",
         "title": "Refresh Tag Colors"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Colored Tags",
+      "properties": {
+        "coloredTags.maxFileSize": {
+          "type": "number",
+          "default": 100000,
+          "minimum": 100,
+          "description": "Maximum file size for changing the color of tags (bytes)"
+        },
+        "coloredTags.debounceDelay": {
+          "type": "number",
+          "default": 300,
+          "minimum": 100,
+          "description": "Delay before updating the tag color (ms)"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

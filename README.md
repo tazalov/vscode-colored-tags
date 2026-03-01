@@ -27,19 +27,27 @@ The extension analyzes your code in real-time and assigns a unique color to each
 
 ## Installation
 
+1. Go to the [Open VSX](https://open-vsx.org/extension/tazalov/colored-tags) and download the extension (`.vsix` file).
+2. Open Visual Studio Code.
+3. Press `F1` or `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (macOS)
+4. Type and select *"Extensions: Install from VSIX..."*
+5. In the file explorer that opens, navigate to the location where you downloaded the `.vsix` file.
+6. Select the file and click *"Install"*.
+7. Wait for the installation to complete. Once finished, you will see a notification confirming that the extension has been installed.
+8. Reload the extension if needed (see Commands below).
+
 ## Usage
 
 The extension activates automatically for supported file types. Tag names will be colored immediately.
 
 ### Commands
 
-- `Colored Tags: Refresh` - Manually refresh tag colors (useful if colors get out of sync)
+- `Refresh Tag Colors` - Manually refresh tag colors (useful if colors get out of sync)
 
 ### Performance Features
 
 - **Debounced updates**: Colors update 300ms after you stop typing
-- **File size limit**: Files larger than 500KB are skipped for performance
-- **Smart caching**: Only processes visible/edited parts of the document
+- **File size limit**: Files larger than 100KB are skipped for performance
 
 ## Configuration
 
@@ -47,17 +55,8 @@ You can customize the following settings in your VS Code `settings.json`:
 
 ```json
 {
-    "coloredTags.maxFileSize": 100,        // Max file size in KB
-    "coloredTags.updateDelay": 300,         // Debounce delay in ms
-    "coloredTags.saturation": 60,            // Color saturation (0-100)
-    "coloredTags.lightness": 60,             // Color lightness (0-100)
-    "coloredTags.supportedLanguages": [      // Override supported languages
-        "html",
-        "xml",
-        "javascriptreact",
-        "typescriptreact",
-				"vue",
-    ]
+    "coloredTags.maxFileSize": 100000,        // Max file size (bytes)
+    "coloredTags.updateDelay": 300,         // Debounce delay (ms)
 }
 ```
 

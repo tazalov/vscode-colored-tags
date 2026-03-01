@@ -16,5 +16,3 @@ export const SUPPORTED_LANGS = [
   'vue',
   'xml',
 ]
-export const MAX_FILE_SIZE = 100000
-export const DEBOUNCE_DELAY = 300
