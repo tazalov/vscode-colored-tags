@@ -38,7 +38,7 @@ jobs:
           echo "CHECKING FOR MINOR LABEL:"
           echo "=================================="
           
-          if echo "$RESPONSE" | jq -e '.[] | select(.name=="major")' > /dev/null 2>&1; then
+          if echo "$RESPONSE" | jq -e '.[] | select(.name=="minor")' > /dev/null 2>&1; then
             echo "✅ MINOR label FOUND!"
             exit 0
           else
