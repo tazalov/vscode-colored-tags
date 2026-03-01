@@ -51,7 +51,6 @@ jobs:
             VERSION_TYPE="patch"
           fi
           
-          # Сохраняем в переменные
           echo "title=$PR_TITLE" >> $GITHUB_OUTPUT
           echo "body<<EOF" >> $GITHUB_OUTPUT
           echo "$PR_BODY" >> $GITHUB_OUTPUT
