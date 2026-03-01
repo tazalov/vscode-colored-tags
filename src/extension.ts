@@ -1,10 +1,12 @@
 import * as vscode from 'vscode'
 
-import { DEBOUNCE_DELAY, MAX_FILE_SIZE, SUPPORTED_LANGS } from './consts'
+import { SUPPORTED_LANGS } from './consts'
 import { debounce, findTagNamesWithLevels, getColorForLevel } from './utils'
+import { getDebounceDelay, getMaxFileSize } from './config'
 
 let decorations: vscode.TextEditorDecorationType[] = []
 let fileSizeWarningShown = false
+let debouncedUpdateDecorations: () => void
 
 function clearDecorations() {
   decorations.forEach((d) => d.dispose())
@@ -26,11 +28,12 @@ function updateDecorations() {
   }
 
   const text = document.getText()
+  const maxFileSize = getMaxFileSize()
 
-  if (text.length > MAX_FILE_SIZE) {
+  if (text.length > maxFileSize) {
     if (!fileSizeWarningShown) {
       vscode.window.showWarningMessage(
-        'File is too large for colored tags. Coloring disabled.',
+        `File is too large for colored tags (max ${maxFileSize}). Coloring disabled for this file.`,
       )
       fileSizeWarningShown = true
     }
@@ -59,10 +62,26 @@ function updateDecorations() {
   }
 }
 
-const debouncedUpdateDecorations = debounce(updateDecorations, DEBOUNCE_DELAY)
+function recreateDebouncedUpdate() {
+  const delay = getDebounceDelay()
+  debouncedUpdateDecorations = debounce(updateDecorations, delay)
+}
 
 export function activate(context: vscode.ExtensionContext) {
   fileSizeWarningShown = false
+  recreateDebouncedUpdate()
+
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (event.affectsConfiguration('coloredTags')) {
+        console.log('Configuration changed, updating...')
+
+        fileSizeWarningShown = false
+        recreateDebouncedUpdate()
+        updateDecorations()
+      }
+    }),
+  )
 
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(() => {

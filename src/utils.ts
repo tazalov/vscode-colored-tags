@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { MAX_FILE_SIZE, TAG_NAME_REGEX } from './consts'
+import { TAG_NAME_REGEX } from './consts'
 
 /**
  * Debounce function
