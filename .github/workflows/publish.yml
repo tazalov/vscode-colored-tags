@@ -7,12 +7,12 @@ on:
 
 jobs:
   publish:
-    # Only PR merge
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
+      issues: write
     
     steps:
       - name: Checkout repository
@@ -30,28 +30,33 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
       
-      # 4. Get PR labels
-      - name: Get PR labels
-        id: labels
+      - name: Get PR details
+        id: pr
         run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          
           PR_NUMBER="${{ github.event.pull_request.number }}"
           REPO="${{ github.repository }}"
-          
-          echo "PR #$PR_NUMBER - ${{ github.event.pull_request.title }}"
           
           LABELS_JSON=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/labels")
           
           if echo "$LABELS_JSON" | grep -q '"name":"major"'; then
-            echo "type=major" >> $GITHUB_OUTPUT
-            echo "Selected: major" 
+            VERSION_TYPE="major"
           elif echo "$LABELS_JSON" | grep -q '"name":"minor"'; then
-            echo "type=minor" >> $GITHUB_OUTPUT
-            echo "Selected: minor"
+            VERSION_TYPE="minor"
           else
-            echo "type=patch" >> $GITHUB_OUTPUT
-            echo "Selected: patch (default)"
+            VERSION_TYPE="patch"
           fi
+          
+          # Сохраняем в переменные
+          echo "title=$PR_TITLE" >> $GITHUB_OUTPUT
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "$PR_BODY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "version-type=$VERSION_TYPE" >> $GITHUB_OUTPUT
 
       - name: Switch to master branch
         run: |
@@ -69,8 +74,40 @@ jobs:
           NEW_VERSION=$(node -p "require('./package.json').version")
           echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "Version bumped to: $NEW_VERSION"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate CHANGELOG
+        run: |
+          NEW_VERSION="${{ steps.bump.outputs.new-version }}"
+          PR_TITLE="${{ steps.pr.outputs.title }}"
+          PR_BODY="${{ steps.pr.outputs.body }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          TODAY=$(date +%Y-%m-%d)
           
-          git push
+          FORMATTED_BODY=$(echo "$PR_BODY" | sed 's/^[*-]\s\+/* /' | sed '/^$/d' | sed 's/^/* /')
+          
+          cat > CHANGELOG.new << EOF
+          ## [$NEW_VERSION] - $TODAY
+          
+          ### $PR_TITLE
+          
+          $FORMATTED_BODY
+          
+          **Full Changes:** [#$PR_NUMBER](https://github.com/${{ github.repository }}/pull/$PR_NUMBER)
+          
+          EOF
+          
+          if [ -f CHANGELOG.md ]; then
+            cat CHANGELOG.md >> CHANGELOG.new
+          fi
+          
+          mv CHANGELOG.new CHANGELOG.md
+          
+          git add CHANGELOG.md package.json package-lock.json
+          git commit -m "chore(release): v$NEW_VERSION [skip ci]"
+          git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
+          git push --follow-tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -96,23 +133,45 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.bump.outputs.new-version }}
+          name: Release v${{ steps.bump.outputs.new-version }} - ${{ steps.pr.outputs.title }}
+          body: |
+            ## ${{ steps.pr.outputs.title }}
+            
+            ${{ steps.pr.outputs.body }}
+            
+            **PR:** [#${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }})
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
       - name: Comment on PR
         uses: actions/github-script@v7
         with:
           script: |
             const newVersion = '${{ steps.bump.outputs.new-version }}';
+            const prTitle = '${{ steps.pr.outputs.title }}';
             
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
-              body: `## ✅ Success released 🎉
+              body: `## ✅ Successfully released 🎉
               
-              ### Result:
-              - New version: **v${newVersion}**
-              - Open VSX publish: ✅ Success
+              ### 📦 Version: **v${newVersion}** - ${prTitle}
               
-              ### Sync dev with master:
-              - \`dev\` sync with \`master\`
+              ### 📝 Changes included:
+              ${{ steps.pr.outputs.body }}
+              
+              ### 🔗 Links:
+              - [GitHub Release v${newVersion}](https://github.com/${{ github.repository }}/releases/tag/v${newVersion})
+              - [Open VSX](https://open-vsx.org/extension/${{ github.repository_owner }}/${{ github.event.repository.name }}/v${newVersion})
+              
+              ### 🔄 Sync:
+              - ✅ \`dev\` branch synced with \`master\`
               `
             });
