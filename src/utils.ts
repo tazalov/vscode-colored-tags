@@ -1,6 +1,8 @@
 import * as vscode from 'vscode'
 import { TAG_NAME_REGEX } from './consts'
 
+import { getLightness, getSaturation } from './config'
+
 /**
  * Debounce function
  * @param func function to debounce
@@ -31,8 +33,8 @@ export function debounce<T extends (...args: any[]) => void>(
  */
 export function getColorForLevel(level: number): string {
   const hue = (level * 60) % 360
-  const saturation = 60
-  const lightness = 60
+  const saturation = getSaturation()
+  const lightness = getLightness()
 
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`
 }
