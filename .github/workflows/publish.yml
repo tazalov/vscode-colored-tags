@@ -37,7 +37,6 @@ jobs:
           PR_BODY="${{ github.event.pull_request.body }}"
           PR_NUMBER="${{ github.event.pull_request.number }}"
           
-          PR_NUMBER="${{ github.event.pull_request.number }}"
           REPO="${{ github.repository }}"
           
           LABELS_JSON=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
