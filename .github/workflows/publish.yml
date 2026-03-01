@@ -68,7 +68,7 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          npm version ${{ steps.labels.outputs.type }} -m "Bump version to %s [skip ci]"
+          npm version ${{ steps.pr.outputs.version-type }} -m "Bump version to %s [skip ci]"
           
           NEW_VERSION=$(node -p "require('./package.json').version")
           echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT
